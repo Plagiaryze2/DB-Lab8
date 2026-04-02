@@ -21,7 +21,7 @@
 
 ## Updater
 
-**Instructor:** Muhammad Anas
+**Student:** Muhammad Anas                   
 **Institution:** FAST-NUCES, Lahore  
 **Course:** Database Systems Lab (CL-2005)
 
