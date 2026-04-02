@@ -7,7 +7,7 @@
 // ============================================================================
 
 const express = require('express');
-const sql = require('mssql');
+const sql = require('mssql/msnodesqlv8'); // Change2: Windows Authentication uses msqlv8 to work.
 const cors = require('cors');
 
 const app = express();
@@ -28,20 +28,7 @@ app.use(express.json());
 // ============================================================================
 
 const dbConfig = {
-    user: 'sa',                     // Change to your SQL username
-    password: '123',                // Change to your SQL password
-    server: 'localhost',            // Change if using different server
-    // server: 'localhost\\SQLEXPRESS', // Uncomment for SQL Express
-    database: 'RozgarDB',
-    options: {
-        encrypt: true,
-        trustServerCertificate: true  // Required for local development
-    },
-    pool: {
-        max: 10,
-        min: 0,
-        idleTimeoutMillis: 30000
-    }
+    connectionString: 'Driver={ODBC Driver 17 for SQL Server};Server=LAPTOP-8ASCIT8B;Database=RozgarDB;Trusted_Connection=yes;' // Change1: Windows Authentication.
 };
 
 // ============================================================================
@@ -97,7 +84,8 @@ app.post('/api/login', async (req, res) => {
         }
         
         // Call the sp_LoginUser stored procedure
-        const result = await pool.request()
+        const pool = await sql.connect(dbConfig);
+	const result = await pool.request()
             .input('Email', sql.VarChar(100), email)
             .input('Password', sql.VarChar(100), password)
             .execute('sp_LoginUser');
@@ -131,7 +119,8 @@ app.get('/api/getExp/:userId', async (req, res) => {
         const userId = parseInt(req.params.userId);
         
         // Call the sp_GetExperience stored procedure
-        const result = await pool.request()
+        const pool = await sql.connect(dbConfig);
+	const result = await pool.request()
             .input('UserID', sql.Int, userId)
             .execute('sp_GetExperience');
         
@@ -164,18 +153,20 @@ app.post('/api/addExp', async (req, res) => {
         }
         
         // Call the sp_AddExperience stored procedure
-        const result = await pool.request()
+        const pool = await sql.connect(dbConfig);
+	const result = await pool.request()
             .input('UserID', sql.Int, UserID)
             .input('JobTitle', sql.VarChar(100), JobTitle)
             .input('CompanyName', sql.VarChar(100), CompanyName)
             .input('YearsWorked', sql.Int, YearsWorked)
             .execute('sp_AddExperience');
         
-        res.json({
-            success: true,
-            message: 'Experience added successfully!',
-            data: result.recordset[0]
-        });
+    res.json({ 
+        success: true, 
+        message: 'Experience added successfully!' 
+    });
+
+    //Change2: Fixing Expreience not adding.
         
     } catch (err) {
         console.error('Add experience error:', err);

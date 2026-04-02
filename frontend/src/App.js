@@ -350,11 +350,20 @@ function Dashboard({ user, onLogout }) {
 function App() {
     const [user, setUser] = useState(null);
 
+    useEffect(() => {
+        const saved = localStorage.getItem('user');
+        if (saved) {
+            setUser(JSON.parse(saved));
+        }
+    }, []);
+
     const handleLogin = (userData) => {
+        localStorage.setItem('user', JSON.stringify(userData));
         setUser(userData);
     };
 
     const handleLogout = () => {
+        localStorage.removeItem('user');
         setUser(null);
     };
 
